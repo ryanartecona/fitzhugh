@@ -1,0 +1,6 @@
+node_modules
+.merlin
+lib
+
+# compiled webpack output
+public/main.js

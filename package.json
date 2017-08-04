@@ -1,0 +1,19 @@
+{
+  "name": "fitzhugh",
+  "version": "0.1.0",
+  "author": "Ryan Artecona",
+  "private": true,
+  "license": "UNLICENSED",
+  "main": "lib/js/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "Reprocessing": "github:Schmavery/reprocessing#bsb-support-new",
+    "bs-platform": "^1.8.2",
+    "webpack": "^3.4.1",
+    "webpack-dev-server": "^2.6.1",
+    "write-file-webpack-plugin": "^4.1.0"
+  },
+  "devDependencies": {}
+}

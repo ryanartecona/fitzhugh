@@ -1,0 +1,11 @@
+{
+  "name": "fitzhugh",
+  "sources": [
+    {
+      "dir": "src"
+    }
+  ],
+  "bs-dependencies": [
+    "Reprocessing"
+  ]
+}
