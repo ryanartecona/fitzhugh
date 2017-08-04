@@ -2,6 +2,7 @@ open Reprocessing;
 
 module Color = {
   let gray: colorT = {r: 0x88, g: 0x88, b: 0x88};
+  let darkGray: colorT = {r: 0x55, g: 0x55, b: 0x55};
   let orange: colorT = {r: 0xCC, g: 0x55, b: 0x11};
 };
 
@@ -11,6 +12,10 @@ module Helper = {
     f ();
     Draw.popStyle env
   };
+  let drawRectCenter ::width ::height env =>
+    Draw.rect pos::(- width / 2, - height / 2) ::width ::height env;
+  let drawRectfCenter ::width ::height env =>
+    Draw.rectf pos::(-. width /. 2., -. height /. 2.) ::width ::height env;
 };
 
 module Neuro = {
@@ -43,28 +48,44 @@ let setup env => {
 };
 
 let draw state env => {
-  let (width, height) = (Env.width env, Env.height env);
+  let (frameWidth, frameHeight) = (Env.width env, Env.height env);
+  let squareSize = 200.;
   Draw.background Constants.black env;
   env |>
   Helper.withStyle (
     fun () => {
       Draw.strokeWeight 0 env;
-      Draw.fill Color.gray env;
       Draw.translate
-        x::(float_of_int (width / 2)) y::(float_of_int (height / 2)) env;
+        x::(float_of_int (frameWidth / 2))
+        y::(float_of_int (frameHeight / 2))
+        env;
       Draw.rotate state.rotation env;
-      Draw.rect pos::((-100), (-100)) width::200 height::200 env;
-      Draw.fill (Neuro.colorOfState state.modelState) env;
-      Draw.rect
-        pos::((-100), (-100))
-        width::(10 + int_of_float (200. *. state.modelState.v))
-        height::(10 + int_of_float (200. *. state.modelState.v))
-        env
+      env |>
+      Helper.withStyle (
+        fun () => {
+          Draw.fill Color.darkGray env;
+          let scale = 1. +. max 0. (-. state.modelState.v);
+          let size = squareSize *. scale;
+          Helper.drawRectfCenter width::size height::size env
+        }
+      );
+      Draw.fill Color.gray env;
+      Helper.drawRectfCenter width::squareSize height::squareSize env;
+      let neuroColor = Neuro.colorOfState state.modelState;
+      env |>
+      Helper.withStyle (
+        fun () => {
+          Draw.fill neuroColor env;
+          let scale = max 0. state.modelState.v;
+          let size = squareSize *. 0.1 +. squareSize *. scale;
+          Helper.drawRectfCenter width::size height::size env
+        }
+      )
     }
   );
   let frameRate = Env.frameRate env;
   let rotateRate = Constants.pi /. 4.;
-  let nextModelState = Neuro.step tau::1. state.modelState;
+  let nextModelState = Neuro.step a::0.1 input::0.04 tau::1. state.modelState;
   {
     rotation: state.rotation +. rotateRate /. float_of_int frameRate,
     modelState: nextModelState
