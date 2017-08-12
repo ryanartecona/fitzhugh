@@ -7,10 +7,12 @@ module Color = {
 };
 
 module Helper = {
-  let withStyle f env => {
+  let withContext f env => {
     Draw.pushStyle env;
+    Draw.pushMatrix env;
     f ();
-    Draw.popStyle env
+    Draw.popStyle env;
+    Draw.popMatrix env
   };
   let drawRectCenter ::width ::height env =>
     Draw.rect pos::(- width / 2, - height / 2) ::width ::height env;
@@ -37,10 +39,10 @@ module Neuro = {
   };
   let draw ::squareSize=200. state env =>
     env |>
-    Helper.withStyle (
+    Helper.withContext (
       fun () => {
         env |>
-        Helper.withStyle (
+        Helper.withContext (
           fun () => {
             Draw.fill Color.darkGray env;
             let scale = 1. +. max 0. (-. state.v);
@@ -52,7 +54,7 @@ module Neuro = {
         Helper.drawRectfCenter width::squareSize height::squareSize env;
         let neuroColor = colorOfState state;
         env |>
-        Helper.withStyle (
+        Helper.withContext (
           fun () => {
             Draw.fill neuroColor env;
             let scale = max 0. state.v;
@@ -64,29 +66,72 @@ module Neuro = {
     );
 };
 
-type state = {modelState: Neuro.state};
+type modelState = {
+  exc1: Neuro.state,
+  exc2: Neuro.state,
+  inh1: Neuro.state,
+  inh2: Neuro.state
+};
+
+type state = {modelState};
 
 let setup env => {
-  Env.size width::1200 height::700 env;
-  {modelState: Neuro.initState}
+  Env.size width::800 height::500 env;
+  {
+    modelState: {
+      exc1: Neuro.initState,
+      exc2: Neuro.initState,
+      inh1: Neuro.initState,
+      inh2: {v: 0.1, w: 0.0}
+    }
+  }
 };
 
 let draw state env => {
   let (frameWidth, frameHeight) = (Env.width env, Env.height env);
-  let squareSize = 200.;
+  let mouseIsDown = Env.mousePressed env;
+  let {exc1, exc2, inh1, inh2} = state.modelState;
+  let squareSize = 150.;
   Draw.background Constants.black env;
   env |>
-  Helper.withStyle (
+  Helper.withContext (
     fun () => {
+      /* draw excitatory pair on left */
       Draw.translate
-        x::(float_of_int (frameWidth / 2))
-        y::(float_of_int (frameHeight / 2))
+        x::(float_of_int (frameWidth / 4))
+        y::(float_of_int (frameHeight / 4))
         env;
-      Neuro.draw ::squareSize state.modelState env
+      Neuro.draw ::squareSize exc1 env;
+      Draw.translate x::0. y::(float_of_int (frameHeight * 2 / 4)) env;
+      Neuro.draw ::squareSize exc2 env
     }
   );
-  let nextModelState = Neuro.step a::0.1 input::0.04 tau::1. state.modelState;
-  {modelState: nextModelState}
+  env |>
+  Helper.withContext (
+    fun () => {
+      /* draw inhibitory pair on right */
+      Draw.translate
+        x::(float_of_int (frameWidth * 3 / 4))
+        y::(float_of_int (frameHeight / 4))
+        env;
+      Neuro.draw ::squareSize inh1 env;
+      Draw.translate x::0. y::(float_of_int (frameHeight * 2 / 4)) env;
+      Neuro.draw ::squareSize inh2 env
+    }
+  );
+  let staticInput = 0.04;
+  let userInput = if mouseIsDown {(-0.04)} else {staticInput};
+  let nextExc1 =
+    Neuro.step a::0.1 input::(userInput +. exc2.v *. 0.01) tau::1. exc1;
+  let nextExc2 =
+    Neuro.step a::0.1 input::(staticInput +. exc1.v *. 0.01) tau::1. exc2;
+  let nextInh1 =
+    Neuro.step a::0.1 input::(userInput -. inh2.v *. 0.01) tau::1. inh1;
+  let nextInh2 =
+    Neuro.step a::0.1 input::(staticInput -. inh1.v *. 0.01) tau::1. inh2;
+  {
+    modelState: {exc1: nextExc1, exc2: nextExc2, inh1: nextInh1, inh2: nextInh2}
+  }
 };
 
 run ::setup ::draw ();
