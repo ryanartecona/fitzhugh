@@ -1,0 +1,3 @@
+[submodule "vendor/Reprocessing"]
+	path = vendor/Reprocessing
+	url = git@github.com:Schmavery/Reprocessing.git

@@ -9,7 +9,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "Reprocessing": "github:Schmavery/reprocessing#bsb-support-new",
+    "Reprocessing": "./vendor/Reprocessing",
     "bs-platform": "^1.8.2",
     "webpack": "^3.4.1",
     "webpack-dev-server": "^2.6.1",
