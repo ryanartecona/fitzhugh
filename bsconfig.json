@@ -7,5 +7,15 @@
   ],
   "bs-dependencies": [
     "Reprocessing"
+  ],
+  "entries": [
+    {
+      "kind": "js",
+      "main": "Main"
+    },
+    {
+      "kind": "native",
+      "main": "Main"
+    }
   ]
 }

@@ -9,8 +9,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "Reprocessing": "./vendor/Reprocessing",
-    "bs-platform": "^1.8.2",
+    "Reprocessing": "file:vendor/Reprocessing",
+    "bs-platform": "github:bsansouci/bsb-native",
     "webpack": "^3.4.1",
     "webpack-dev-server": "^2.6.1",
     "write-file-webpack-plugin": "^4.1.0"
