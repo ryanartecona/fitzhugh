@@ -1,6 +1,7 @@
 open Reprocessing;
 
 module Color = {
+  open Reprocessing_Common;
   let gray: colorT = {r: 0x88, g: 0x88, b: 0x88};
   let darkGray: colorT = {r: 0x55, g: 0x55, b: 0x55};
   let orange: colorT = {r: 0xCC, g: 0x55, b: 0x11};
@@ -32,11 +33,12 @@ module Neuro = {
     let dw = b *. v -. c *. w;
     {v: v +. dv *. tau, w: w +. dw *. tau}
   };
-  let colorOfState st :colorT => {
-    r: 0xCC - int_of_float (float_of_int 0x77 *. st.w *. 5.),
-    g: 0x22 + int_of_float (float_of_int 0x77 *. st.w *. 5.),
-    b: 0x55 + int_of_float (float_of_int 0x77 *. st.w *. 5.)
-  };
+  let colorOfState st :colorT =>
+    Reprocessing_Common.{
+      r: 0xCC - int_of_float (float_of_int 0x77 *. st.w *. 5.),
+      g: 0x22 + int_of_float (float_of_int 0x77 *. st.w *. 5.),
+      b: 0x55 + int_of_float (float_of_int 0x77 *. st.w *. 5.)
+    };
   let draw ::squareSize=200. state env =>
     env |>
     Helper.withContext (
@@ -82,7 +84,7 @@ let setup env => {
       exc1: Neuro.initState,
       exc2: Neuro.initState,
       inh1: Neuro.initState,
-      inh2: {v: 0.1, w: 0.0}
+      inh2: Neuro.{v: 0.1, w: 0.0}
     }
   }
 };
@@ -122,13 +124,15 @@ let draw state env => {
   let staticInput = 0.04;
   let userInput = if mouseIsDown {(-0.04)} else {staticInput};
   let nextExc1 =
-    Neuro.step a::0.1 input::(userInput +. exc2.v *. 0.01) tau::1. exc1;
+    Neuro.step a::0.1 input::Neuro.(userInput +. exc2.v *. 0.01) tau::1. exc1;
   let nextExc2 =
-    Neuro.step a::0.1 input::(staticInput +. exc1.v *. 0.01) tau::1. exc2;
+    Neuro.step
+      a::0.1 input::Neuro.(staticInput +. exc1.v *. 0.01) tau::1. exc2;
   let nextInh1 =
-    Neuro.step a::0.1 input::(userInput -. inh2.v *. 0.01) tau::1. inh1;
+    Neuro.step a::0.1 input::Neuro.(userInput -. inh2.v *. 0.01) tau::1. inh1;
   let nextInh2 =
-    Neuro.step a::0.1 input::(staticInput -. inh1.v *. 0.01) tau::1. inh2;
+    Neuro.step
+      a::0.1 input::Neuro.(staticInput -. inh1.v *. 0.01) tau::1. inh2;
   {
     modelState: {exc1: nextExc1, exc2: nextExc2, inh1: nextInh1, inh2: nextInh2}
   }
