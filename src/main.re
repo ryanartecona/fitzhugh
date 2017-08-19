@@ -17,10 +17,30 @@ let setup env => {
 let draw state env => {
   let (frameWidth, frameHeight) = (Env.width env, Env.height env);
   let mouseIsDown = Env.mousePressed env;
+  let (minInput, maxInput) = (12., 50.);
   let {input} = state;
   let {exc1} = state.modelState;
   let neuronSize = 150.;
   Draw.background Constants.black env;
+  env |>
+  Util.withContext (
+    fun () => {
+      /* draw an outlined meter for ramped input */
+      Draw.translate x::10. y::10. env;
+      Draw.noStroke env;
+      Draw.strokeWeight 0 env;
+      Draw.fill Color.red env;
+      Draw.rectf
+        pos::(0., 0.)
+        width::(100. *. Utils.norm value::input low::minInput high::maxInput)
+        height::20.
+        env;
+      Draw.noFill env;
+      Draw.stroke (Color.grayScale 0.4) env;
+      Draw.strokeWeight 2 env;
+      Draw.rect pos::(0, 0) width::100 height::20 env
+    }
+  );
   env |>
   Util.withContext (
     fun () => {
@@ -31,10 +51,10 @@ let draw state env => {
       Neuro.drawMorrisLecar size::neuronSize exc1 env
     }
   );
-  let staticInput = 12.0;
+  let staticInput = minInput;
   let rampedInput =
     if mouseIsDown {
-      input +. 0.03
+      min maxInput (input +. 0.03)
     } else {
       staticInput
     };
