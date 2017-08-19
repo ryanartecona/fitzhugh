@@ -1,9 +1,19 @@
+let logisticCurve = Hodgkin_Util.logisticCurve;
+
 type state = {
   v: float,
   n: float
 };
 
-let initState = {v: 0.5, n: 0.5};
+let initState = {v: (-60.), n: 0.};
+
+let lowV = (-60.);
+
+let highV = 10.;
+
+let lowN = 0.;
+
+let highN = 0.5;
 
 let step
     ::g_L=8.
@@ -12,10 +22,10 @@ let step
     ::e_Na=60.
     ::g_K=10.
     ::e_K=(-90.)
-    ::m_inf
-    ::n_inf
+    ::m_inf=(logisticCurve midValue::(-20.) slopeInv::15.)
+    ::n_inf=(logisticCurve midValue::(-25.) slopeInv::5.)
     ::input=0.
-    ::tau=1.
+    ::t=1.
     st => {
   let {v, n} = st;
   let leakCurrent = g_L *. (v -. e_L);
@@ -23,5 +33,5 @@ let step
   let potassiumCurrent = g_K *. n *. (v -. e_K);
   let dv = input -. leakCurrent -. sodiumCurrent -. potassiumCurrent;
   let dn = n_inf v -. n;
-  {v: v +. dv *. tau, n: n +. dn *. tau}
+  {v: v +. dv *. t, n: n +. dn *. t}
 };
