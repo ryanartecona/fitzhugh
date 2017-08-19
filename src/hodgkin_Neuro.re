@@ -10,15 +10,7 @@ module MorrisLecar = Hodgkin_Neuro_MorrisLecar;
 
 let colorOf value => Utils.lerpColor low::Color.red high::Color.blue ::value;
 
-let draw2d
-    ::squareSize=200.
-    ::varPulse
-    ::lowPulseVal=0.
-    ::highPulseVal=1.
-    ::varColor
-    ::lowColorVal=0.
-    ::highColorVal=0.2
-    env =>
+let draw2d ::size=200. ::varPulse ::varColor env =>
   env |>
   Util.withContext (
     fun () => {
@@ -27,12 +19,13 @@ let draw2d
         fun () => {
           Draw.fill Color.darkGray env;
           let scale = 1. +. max 0. (-. varPulse);
-          let size = squareSize *. scale;
-          Util.drawRectfCenter width::size height::size env
+          let size = size *. scale;
+          Draw.ellipsef
+            center::(0., 0.) radx::(size /. 2.) rady::(size /. 2.) env
         }
       );
       Draw.fill Color.gray env;
-      Util.drawRectfCenter width::squareSize height::squareSize env;
+      Draw.ellipsef center::(0., 0.) radx::(size /. 2.) rady::(size /. 2.) env;
       let neuroColor = colorOf varColor;
       env |>
       Util.withContext (
@@ -40,26 +33,22 @@ let draw2d
           Draw.fill neuroColor env;
           let scale = max 0. varPulse;
           let size =
-            squareSize *. 0.1 +.
-            squareSize *. Utils.lerpf low::0. high::0.9 value::scale;
-          Util.drawRectfCenter width::size height::size env
+            size *. 0.1 +. size *. Utils.lerpf low::0. high::0.9 value::scale;
+          Draw.ellipsef
+            center::(0., 0.) radx::(size /. 2.) rady::(size /. 2.) env
         }
       )
     }
   );
 
-let drawFitzhugh ::squareSize=200. (state: Fitzhugh.state) env =>
-  Fitzhugh.(
-    draw2d ::squareSize varPulse::state.v varColor::(state.w *. 5.) env
-  );
+let drawFitzhugh ::size=200. (state: Fitzhugh.state) env =>
+  Fitzhugh.(draw2d ::size varPulse::state.v varColor::(state.w *. 5.) env);
 
-let drawMorrisLecar ::squareSize=200. (state: MorrisLecar.state) env => {
-  Js.log state;
+let drawMorrisLecar ::size=200. (state: MorrisLecar.state) env =>
   MorrisLecar.(
     draw2d
-      ::squareSize
+      ::size
       varPulse::(Utils.norm low::lowV high::highV value::state.v)
       varColor::(Utils.norm low::lowN high::highN value::state.n)
       env
-  )
-};
+  );

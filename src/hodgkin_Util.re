@@ -20,3 +20,9 @@ let drawRectfCenter ::width ::height env =>
  */
 let logisticCurve ::min=0. ::max=1. ::midValue=0. ::slopeInv=1. value =>
   min +. (max -. min) /. (1. +. exp ((midValue -. value) /. slopeInv));
+
+let rec iterN n x f =>
+  switch n {
+  | 0 => x
+  | _ => iterN (n - 1) (f x) f
+  };

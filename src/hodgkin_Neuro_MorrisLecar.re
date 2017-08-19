@@ -5,7 +5,7 @@ type state = {
   n: float
 };
 
-let initState = {v: (-60.), n: 0.};
+let initState = {v: (-65.), n: 0.};
 
 let lowV = (-60.);
 
@@ -17,13 +17,15 @@ let highN = 0.5;
 
 let step
     ::g_L=8.
-    ::e_L=(-80.)
+    /* ::e_L=(-80.) */
+    ::e_L=(-78.)
     ::g_Na=20.
     ::e_Na=60.
     ::g_K=10.
     ::e_K=(-90.)
     ::m_inf=(logisticCurve midValue::(-20.) slopeInv::15.)
-    ::n_inf=(logisticCurve midValue::(-25.) slopeInv::5.)
+    /* ::n_inf=(logisticCurve midValue::(-25.) slopeInv::5.) */
+    ::n_inf=(logisticCurve midValue::(-45.) slopeInv::5.)
     ::input=0.
     ::t=1.
     st => {
