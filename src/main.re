@@ -25,20 +25,19 @@ let draw state env => {
   env |>
   Util.withContext (
     fun () => {
-      /* draw an outlined meter for ramped input */
+      /* draw a meter that shows ramped input current */
       Draw.translate x::10. y::10. env;
-      Draw.noStroke env;
-      Draw.strokeWeight 0 env;
-      Draw.fill Color.red env;
-      Draw.rectf
-        pos::(0., 0.)
-        width::(100. *. Utils.norm value::input low::minInput high::maxInput)
-        height::20.
-        env;
-      Draw.noFill env;
-      Draw.stroke (Color.grayScale 0.4) env;
-      Draw.strokeWeight 2 env;
-      Draw.rect pos::(0, 0) width::100 height::20 env
+      Shape.(
+        meter
+          direction::Right
+          outlineColor::(Color.grayScale 0.4)
+          width::100.
+          height::20.
+          min::minInput
+          max::maxInput
+          input
+          env
+      )
     }
   );
   env |>

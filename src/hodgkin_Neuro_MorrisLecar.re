@@ -7,13 +7,17 @@ type state = {
 
 let initState = {v: (-65.), n: 0.};
 
-let lowV = (-60.);
+let minV = (-80.);
 
-let highV = 10.;
+let maxV = 10.;
 
-let lowN = 0.;
+let restV = (-60.);
 
-let highN = 0.5;
+let minN = 0.;
+
+let maxN = 0.5;
+
+let restN = 0.;
 
 let step
     ::g_L=8.

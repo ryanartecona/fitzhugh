@@ -10,7 +10,17 @@ module MorrisLecar = Hodgkin_Neuro_MorrisLecar;
 
 let colorOf value => Utils.lerpColor low::Color.red high::Color.blue ::value;
 
-let draw2d ::size=200. ::varPulse ::varColor env =>
+let draw2d
+    ::size=200.
+    ::varPulse
+    ::minPulse=(-0.2)
+    ::maxPulse=1.
+    ::restPulse=0.
+    ::varColor
+    ::minColor=0.
+    ::maxColor=1.
+    ::restColor=0.
+    env =>
   env |>
   Util.withContext (
     fun () => {
@@ -48,7 +58,7 @@ let drawMorrisLecar ::size=200. (state: MorrisLecar.state) env =>
   MorrisLecar.(
     draw2d
       ::size
-      varPulse::(Utils.norm low::lowV high::highV value::state.v)
-      varColor::(Utils.norm low::lowN high::highN value::state.n)
+      varPulse::(Utils.norm low::minV high::maxV value::state.v)
+      varColor::(Utils.norm low::minN high::maxN value::state.n)
       env
   );
