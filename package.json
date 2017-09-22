@@ -13,7 +13,8 @@
     "bs-platform": "github:bsansouci/bsb-native",
     "webpack": "^3.4.1",
     "webpack-dev-server": "^2.6.1",
-    "write-file-webpack-plugin": "^4.1.0"
+    "write-file-webpack-plugin": "^4.1.0",
+    "esy": "esy-ocaml/esy#esy"
   },
   "devDependencies": {}
 }

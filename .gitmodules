@@ -1,3 +1,4 @@
 [submodule "vendor/Reprocessing"]
 	path = vendor/Reprocessing
 	url = https://github.com/Schmavery/Reprocessing.git
+	branch = bsb-support-new

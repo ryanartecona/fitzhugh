@@ -3,10 +3,15 @@
   "sources": [
     {
       "dir": "src"
+    },
+    {
+      "dir": "vendor/Reprocessing/src"
     }
   ],
   "bs-dependencies": [
-    "Reprocessing"
+    "ReasonglInterface",
+    "ReasonglWeb",
+    "ReasonglNative"
   ],
   "entries": [
     {
