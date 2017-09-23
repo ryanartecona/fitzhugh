@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>hodgkin</title>
+    <!-- <link rel="shortcut icon" href="./favicon.png"> -->
+    <link rel="stylesheet" type="text/css" href="index.css">
+  </head>
+
+  <body>
+    <div id="root">
+      <h2>Morris-Lecar model at Hopf bifurcation</h2>
+      <p>
+        This shows a single <a href="https://en.wikipedia.org/wiki/Morris%E2%80%93Lecar_model">Morris-Lecar model</a> undergo a <a href="https://en.wikipedia.org/wiki/Hopf_bifurcation">Hopf bifurcation</a> as input voltage is slowly ramped up.
+      </p>
+      <p>
+        <strong>Keys:</strong>
+        Click and hold anywhere in the canvas area to let input voltage ramp up. Release to reset voltage to rest.
+      </p>
+      <p>
+        You can see the input voltage change reflected in the red meter in the top left corner.
+      </p>
+      <p>
+        As input voltage ramps up, there is a threshold past which the model will start oscillating out of nowhere. Oscillations start at low amplitude and slowly increase in amplitude as input voltage increases, as is characteristic of a Hopf bifurcation in the phase space.
+      </p>
+      <p>
+        Once the mouse button is released and input voltage is instantaneously reset to 0, the periodic orbit (oscillation) resulting from the Hopf bifurcation immediately vanishes and oscillations become increasingly damped as the model approaches its stable equilibrium.
+      </p>
+    </div>
+    <script src="main.js"></script>
+  </body>
+
+</html>
