@@ -19,6 +19,7 @@ let meter
     ::direction=Up
     ::meterColor=red
     ::outlineColor=black
+    ::backgroundColor=None
     ::width=10.
     ::height=100.
     ::min=0.
@@ -35,25 +36,33 @@ let meter
   let (scaleWidth, scaleHeight) =
     switch direction {
     | Up
-    | Down => (1., Utils.norm ::value low::min high::max)
+    | Down => (1., Pervasives.min 1. (Utils.norm ::value low::min high::max))
     | Left
-    | Right => (Utils.norm ::value low::min high::max, 1.)
+    | Right => (Pervasives.min 1. (Utils.norm ::value low::min high::max), 1.)
     };
-  env |>
-  withContext (
-    fun () => {
-      Draw.scale x::scaleX y::scaleY env;
-      Draw.noStroke env;
-      Draw.fill meterColor env;
-      Draw.rectf
-        pos::(0., 0.)
-        width::(width *. scaleWidth)
-        height::(height *. scaleHeight)
-        env;
-      Draw.stroke outlineColor env;
-      Draw.noFill env;
-      Draw.rectf pos::(0., 0.) ::width ::height env
-    }
-  );
+  withContext
+    (
+      fun () => {
+        Draw.scale x::scaleX y::scaleY env;
+        let _ =
+          switch backgroundColor {
+          | None => Draw.noFill env
+          | Some bg => Draw.fill bg env
+          };
+        Draw.rectf pos::(0., 0.) ::width ::height env;
+        Draw.noStroke env;
+        Draw.fill meterColor env;
+        Draw.rectf
+          pos::(0., 0.)
+          width::(width *. scaleWidth)
+          height::(height *. scaleHeight)
+          env;
+        Draw.stroke outlineColor env;
+        Draw.strokeWeight 1 env;
+        Draw.noFill env;
+        Draw.rectf pos::(0., 0.) ::width ::height env
+      }
+    )
+    env;
   ()
 };

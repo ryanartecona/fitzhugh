@@ -15,7 +15,7 @@ let restV = (-60.);
 
 let minN = 0.;
 
-let maxN = 0.5;
+let maxN = 0.8;
 
 let restN = 0.;
 
