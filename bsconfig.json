@@ -1,14 +1,14 @@
 {
   "name": "hodgkin",
   "sources": [
-    {
-      "dir": "src"
-    },
+    "src",
+    "test",
     {
       "dir": "vendor/Reprocessing/src"
     }
   ],
   "bs-dependencies": [
+    "ocaml-alcotest",
     "ReasonglInterface",
     "ReasonglWeb",
     "ReasonglNative"
@@ -21,6 +21,14 @@
     {
       "kind": "native",
       "main": "Main"
+    },
+    {
+      "kind": "js",
+      "main": "Test"
+    },
+    {
+      "kind": "native",
+      "main": "Test"
     }
   ]
 }

@@ -6,17 +6,22 @@
   "license": "UNLICENSED",
   "main": "lib/js/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clean": "bsb -clean-world",
+    "build:web": "bsb -color -make-world -backend js",
+    "build:native": "bsb -color -make-world -backend native",
+    "dev": "parallel --lb --tag --tagstring '{}:' npm run '{}' -- -w ::: build:web build:native",
+    "test:web": "node lib/js/test/test.js",
+    "test:native": "lib/bs/native/test.native"
   },
   "dependencies": {
     "ReasonglInterface": "github:bsansouci/reasongl-interface#bsb-support-new",
     "ReasonglNative": "github:bsansouci/reasongl-native#bsb-support-new",
     "ReasonglWeb": "github:bsansouci/reasongl-web#bsb-support-new",
     "bs-platform": "github:bsansouci/bsb-native",
+    "ocaml-alcotest": "github:ryanartecona/alcotest#bsb-native",
     "webpack": "^3.4.1",
     "webpack-dev-server": "^2.6.1",
-    "write-file-webpack-plugin": "^4.1.0",
-    "esy": "esy-ocaml/esy#esy"
+    "write-file-webpack-plugin": "^4.1.0"
   },
   "devDependencies": {}
 }
