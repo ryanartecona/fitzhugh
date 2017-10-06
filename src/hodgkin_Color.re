@@ -2,9 +2,9 @@ open Reprocessing.Constants;
 
 open Reprocessing.Utils;
 
-let whiteA a => color r::0xFF g::0xFF b::0xFF ::a ();
+let whiteA a => colorf r::1. g::1. b::1. ::a;
 
-let blackA a => color r::0x00 g::0x00 b::0x00 ::a ();
+let blackA a => colorf r::0. g::0. b::0. ::a;
 
 let grayScale ::a=1. x => lerpColor low::(whiteA a) high::(blackA a) value::x;
 
@@ -16,12 +16,12 @@ let gray = grayScale 0.5;
 
 let darkGray = grayScale 0.7;
 
-let orange = color r::0xCC g::0x55 b::0x11 ();
+let orange = colorf r::0.8 g::0.333 b::0.066 a::1.;
 
-let redA a => color r::0xCC g::0x22 b::0x55 ::a ();
+let redA a => colorf r::0.8 g::0.133 b::0.333 ::a;
 
 let red = redA 1.;
 
-let blueA a => color r::0x55 g::0x99 b::0xCC ::a ();
+let blueA a => colorf r::0.333 g::0.6 b::0.8 ::a;
 
 let blue = blueA 1.;

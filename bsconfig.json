@@ -3,9 +3,8 @@
   "sources": [
     "src",
     "test",
-    {
-      "dir": "vendor/Reprocessing/src"
-    }
+    "vendor/Reprocessing/src",
+    "vendor/Reprocessing/examples"
   ],
   "bs-dependencies": [
     "ocaml-alcotest",
