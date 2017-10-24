@@ -58,7 +58,10 @@ let draw state env => {
       staticInput
     };
   let nextExc1 =
-    Util.iterN 80 exc1 Neuro.MorrisLecar.(step input::rampedInput t::0.001);
+    Util.iterN
+      80
+      exc1
+      Neuro.MorrisLecar.(stepEuler (slope input::rampedInput) t::0.001);
   {modelState: {exc1: nextExc1}, input: rampedInput}
 };
 

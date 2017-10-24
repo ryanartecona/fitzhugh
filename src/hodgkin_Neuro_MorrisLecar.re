@@ -5,6 +5,11 @@ type state = {
   n: float
 };
 
+type deriv = {
+  dv: float,
+  dn: float
+};
+
 let initState = {v: (-65.), n: 0.};
 
 let minV = (-80.);
@@ -19,7 +24,7 @@ let maxN = 0.8;
 
 let restN = 0.;
 
-let step
+let slope
     ::g_L=8.
     /* ::e_L=(-80.) */
     ::e_L=(-78.)
@@ -31,7 +36,6 @@ let step
     /* ::n_inf=(logisticCurve midValue::(-25.) slopeInv::5.) */
     ::n_inf=(logisticCurve midValue::(-45.) slopeInv::5.)
     ::input=0.
-    ::t=1.
     st => {
   let {v, n} = st;
   let leakCurrent = g_L *. (v -. e_L);
@@ -39,5 +43,10 @@ let step
   let potassiumCurrent = g_K *. n *. (v -. e_K);
   let dv = input -. leakCurrent -. sodiumCurrent -. potassiumCurrent;
   let dn = n_inf v -. n;
-  {v: v +. dv *. t, n: n +. dn *. t}
+  {dv, dn}
+};
+
+let stepEuler ::t (f: state => deriv) (st: state) :state => {
+  let d = f st;
+  {v: st.v +. d.dv *. t, n: st.n +. d.dn *. t}
 };

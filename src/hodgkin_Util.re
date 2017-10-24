@@ -21,6 +21,9 @@ let drawRectfCenter ::width ::height env =>
 let logisticCurve ::min=0. ::max=1. ::midValue=0. ::slopeInv=1. value =>
   min +. (max -. min) /. (1. +. exp ((midValue -. value) /. slopeInv));
 
+/* For [iterN n x f], iterate [f] [n] times with initial value [x]. Equivalent
+ * to folding [f] over a list [[1..n]] with accumulator [x].
+ */
 let rec iterN n x f =>
   switch n {
   | 0 => x
