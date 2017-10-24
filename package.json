@@ -11,7 +11,9 @@
     "build:web:watch": "npm run build:web -- -w",
     "build:native": "bsb -color -make-world -backend native",
     "build:native:watch": "npm run build:native -- -w",
-    "dev": "parallel --lb --tag --tagstring '{}:' npm run ::: build:web:watch build:native:watch",
+    "webpack": "webpack",
+    "webpack:watch": "webpack-dev-server --color",
+    "dev": "parallel --lb --tag --tagstring '{}:' npm run ::: build:web:watch build:native:watch webpack:watch",
     "test": "lib/bs/native/test.native",
     "test:watch": "echo lib/bs/native/test.native | entr -c /_"
   },

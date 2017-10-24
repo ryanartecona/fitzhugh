@@ -28,10 +28,6 @@
       "main": "Main"
     },
     {
-      "kind": "js",
-      "main": "Test"
-    },
-    {
       "kind": "native",
       "main": "Test"
     }
