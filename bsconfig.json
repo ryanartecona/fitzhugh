@@ -2,9 +2,15 @@
   "name": "hodgkin",
   "sources": [
     "src",
-    "test",
+    {
+      "dir": "test",
+      "type": "dev"
+    },
     "vendor/Reprocessing/src",
-    "vendor/Reprocessing/examples"
+    {
+      "dir": "vendor/Reprocessing/examples",
+      "type": "dev"
+    }
   ],
   "bs-dependencies": [
     "ocaml-alcotest",
