@@ -10,6 +10,18 @@ type deriv = {
   dn: float
 };
 
+type state_arr = array float;
+
+type deriv_arr = array float;
+
+let array_of_state {v, n} => [|v, n|];
+
+let state_of_array arr => {v: arr.(0), n: arr.(1)};
+
+let array_of_deriv {dv, dn} => [|dv, dn|];
+
+let deriv_of_array arr => {dv: arr.(0), dn: arr.(1)};
+
 let initState = {v: (-65.), n: 0.};
 
 let minV = (-80.);
@@ -36,17 +48,15 @@ let slope
     /* ::n_inf=(logisticCurve midValue::(-25.) slopeInv::5.) */
     ::n_inf=(logisticCurve midValue::(-45.) slopeInv::5.)
     ::input=0.
-    st => {
-  let {v, n} = st;
-  let leakCurrent = g_L *. (v -. e_L);
-  let sodiumCurrent = g_Na *. m_inf v *. (v -. e_Na);
-  let potassiumCurrent = g_K *. n *. (v -. e_K);
-  let dv = input -. leakCurrent -. sodiumCurrent -. potassiumCurrent;
-  let dn = n_inf v -. n;
-  {dv, dn}
-};
-
-let stepEuler ::t (f: state => deriv) (st: state) :state => {
-  let d = f st;
-  {v: st.v +. d.dv *. t, n: st.n +. d.dn *. t}
-};
+    (st: state_arr)
+    :deriv_arr =>
+  {
+    let [|v, n|] = st;
+    let leakCurrent = g_L *. (v -. e_L);
+    let sodiumCurrent = g_Na *. m_inf v *. (v -. e_Na);
+    let potassiumCurrent = g_K *. n *. (v -. e_K);
+    let dv = input -. leakCurrent -. sodiumCurrent -. potassiumCurrent;
+    let dn = n_inf v -. n;
+    [|dv, dn|]
+  }
+  [@ocaml.warning "-8"];

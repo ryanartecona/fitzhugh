@@ -103,3 +103,77 @@ let drawMorrisLecar ::size=200. (state: MorrisLecar.state) env =>
       varColor::(Utils.norm low::minN high::maxN value::state.n)
       env
   );
+
+let stepEuler
+    ::t
+    (f: array float /* state array */ => array float /* deriv array */)
+    (st: array float)
+    :array float => {
+  let d = f st;
+  assert (Array.length st == Array.length d);
+  st |> Array.mapi (fun i st_i => st_i +. d.(i) *. t)
+};
+
+
+/**
+ https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods#Explicit_Runge.E2.80.93Kutta_methods
+ */
+type butcherTableau = {
+  rkMat: array (array float),
+  weights: array float
+  /* nodes: array float */
+};
+
+let euler_tableau = {rkMat: [|[||]|], weights: [|1.|]};
+
+let rk4_tableau = {
+  rkMat: [|[||], [|0.5|], [|0., 0.5|], [|0., 0., 1.|]|],
+  weights: {
+    let _1_6 = 1. /. 6.;
+    let _1_3 = 1. /. 3.;
+    [|_1_6, _1_3, _1_3, _1_6|]
+  }
+};
+
+let mult_array_constant arr c => Array.map (fun a => a *. c) arr;
+
+let add_arrays arr1 arr2 =>
+  Array.mapi (fun i arr1_i => arr1_i +. arr2.(i)) arr1;
+
+let mult_arrays arr1 arr2 =>
+  Array.mapi (fun i arr1_i => arr1_i *. arr2.(i)) arr1;
+
+let zero_array n => Array.make n 0.;
+
+let stepExplicitRungeKutta
+    tableau::({rkMat, weights}: butcherTableau)
+    ::t
+    (f: array float /* state array */ => array float /* deriv array */)
+    (st: array float)
+    :array float => {
+  let st_len = Array.length st;
+  let d = f st;
+  assert (Array.length d == st_len);
+  let s = Array.length rkMat;
+  assert (s == Array.length weights);
+  /* assert (s == Array.length tab.nodes); */
+  let k: array (array float) = Array.init s (fun _ => [||]);
+  for i in 0 to (s - 1) {
+    assert (i == Array.length rkMat.(i));
+    let accum_slope = ref (zero_array st_len);
+    for j in 0 to (i - 1) {
+      accum_slope := mult_array_constant !accum_slope rkMat.(i).(j)
+    };
+    k.(i) = f (add_arrays st (mult_array_constant !accum_slope t))
+  };
+  let acc = ref (zero_array st_len);
+  weights
+  |> Array.iteri (
+       fun i w_i => acc := add_arrays !acc (mult_array_constant k.(i) w_i)
+     );
+  add_arrays st (mult_array_constant !acc t)
+};
+
+let stepRKEuler = stepExplicitRungeKutta tableau::euler_tableau;
+
+let stepRK4 = stepExplicitRungeKutta tableau::rk4_tableau;

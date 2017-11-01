@@ -15,7 +15,7 @@
     "webpack:watch": "webpack-dev-server --color",
     "dev": "parallel --lb --tag --tagstring '{}:' npm run ::: build:web:watch build:native:watch webpack:watch",
     "test": "lib/bs/native/test.native",
-    "test:watch": "echo lib/bs/native/test.native | entr -c /_"
+    "test:watch": "echo lib/bs/native/test.native | entr -c /_ -e"
   },
   "dependencies": {
     "ReasonglInterface": "github:bsansouci/reasongl-interface",
