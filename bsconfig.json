@@ -12,6 +12,7 @@
       "type": "dev"
     }
   ],
+  "refmt": 3,
   "bs-dependencies": [
     "ocaml-alcotest",
     "ReasonglInterface",
