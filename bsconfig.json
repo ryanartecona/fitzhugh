@@ -6,7 +6,19 @@
       "dir": "test",
       "type": "dev"
     },
-    "vendor/Reprocessing/src",
+    {
+      "dir": "vendor/Reprocessing/src",
+      "subdirs": [
+        {
+          "dir": "native",
+          "backend": ["bytecode"]
+        },
+        {
+          "dir": "web",
+          "backend": ["native", "js"]
+        }
+      ]
+    },
     {
       "dir": "vendor/Reprocessing/examples",
       "type": "dev"
@@ -18,18 +30,20 @@
     "ReasonglWeb",
     "ReasonglNative"
   ],
+  "refmt": 3,
+  "ppx-flags": ["matchenv/matchenv"],
   "entries": [
     {
-      "kind": "js",
-      "main": "Main"
+      "backend": "js",
+      "main-module": "Main"
     },
     {
-      "kind": "native",
-      "main": "Main"
+      "backend": "native",
+      "main-module": "Main"
     },
     {
-      "kind": "native",
-      "main": "Test"
+      "backend": "native",
+      "main-module": "Test"
     }
   ]
 }
