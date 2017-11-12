@@ -26,46 +26,27 @@ module HodgkinTests = {
           let n = 1;
         }
       );
-    let test_stepEuler = () => {
-      let input = [|1.|];
-      let output = [|1.2|];
-      let f = (_) => [|2.|];
-      check(
-        array(float(0.0001)),
-        "steps a constant function 1 step correctly",
-        output,
-        Hodgkin.Neuro.stepEuler(~t=0.1, f, input)
-      )
-    };
     module SimArray1 = Hodgkin.Neuro.Sim(ArrayODE1);
-    let test_stepRKEuler = () => {
-      let input = [|1.|];
-      let expect = [|1.2|];
-      let f = (_) => [|2.|];
-      check(
-        array(float(0.0001)),
-        "steps a constant function 1 step correctly",
-        expect,
-        SimArray1.stepRKEuler(~t=0.1, f, input)
-      )
+    let testSimBasic = (simStep, ()) => {
+      let t = check(array(float(0.0001)));
+      t(
+        "takes a linear step",
+        [|1.2|],
+        simStep(~t=0.1, (_) => [|2.|], [|1.|])
+      );
+      t("takes a quadratic step", [|8.|], simStep(~t=1., (x) => x, [|4.|]))
     };
-    let test_stepRK4 = () => {
-      let input = [|1.|];
-      let output = [|1.2|];
-      let f = (_) => [|2.|];
-      check(
-        array(float(0.0001)),
-        "steps a constant function 1 step correctly",
-        output,
-        SimArray1.stepRK4(~t=0.1, f, input)
-      )
-    };
+    let test_stepEuler = testSimBasic(SimArray1.stepEuler);
+    let test_stepRKEuler = testSimBasic(SimArray1.stepRKEuler);
+    let test_stepRK4 = testSimBasic(SimArray1.stepRK4);
+    let test_stepDoPri = testSimBasic(SimArray1.stepDoPri);
     let tests = (
       "Hodgkin.Neuro",
       [
         ("stepEuler", `Quick, test_stepEuler),
         ("stepRKEuler", `Quick, test_stepRKEuler),
-        ("stepRK4", `Quick, test_stepRK4)
+        ("stepRK4", `Quick, test_stepRK4),
+        ("stepDoPri", `Quick, test_stepDoPri)
       ]
     );
   };

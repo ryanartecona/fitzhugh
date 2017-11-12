@@ -103,18 +103,6 @@ let draw2d =
 let drawFitzhugh = (~size=200., state: Fitzhugh.state, env) =>
   Fitzhugh.(draw2d(~size, ~varPulse=state.v, ~varColor=state.w *. 5., env));
 
-let stepEuler =
-    (
-      ~t,
-      f: array(float) /* state array */ => array(float) /* deriv array */,
-      st: array(float)
-    )
-    : array(float) => {
-  let d = f(st);
-  assert (Array.length(st) == Array.length(d));
-  st |> Array.mapi((i, st_i) => st_i +. d[i] *. t)
-};
-
 
 /***
  https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods#Explicit_Runge.E2.80.93Kutta_methods
@@ -136,6 +124,40 @@ let rk4_tableau = {
   }
 };
 
+let dopri_tableau = {
+  rkMat: [|
+    [||],
+    [|1. /. 5.|],
+    [|3. /. 40., 9. /. 40.|],
+    [|44. /. 45., (-56.) /. 15., 32. /. 9.|],
+    [|19372. /. 6561., (-25360.) /. 2187., 64448. /. 6561., (-212.) /. 729.|],
+    [|
+      9017. /. 3168.,
+      (-355.) /. 33.,
+      46732. /. 5247.,
+      49. /. 176.,
+      (-5103.) /. 18656.
+    |],
+    [|
+      35. /. 384.,
+      0.,
+      500. /. 1113.,
+      125. /. 192.,
+      (-2187.) /. 6784.,
+      11. /. 84.
+    |]
+  |],
+  weights: [|
+    35. /. 384.,
+    0.,
+    500. /. 1113.,
+    125. /. 192.,
+    (-2187.) /. 6784.,
+    11. /. 84.,
+    0.
+  |]
+};
+
 module type ODE = {
   type state;
   type deriv;
@@ -146,6 +168,9 @@ module type ODE = {
 };
 
 module Sim = (F: ODE) => {
+  /* Explicit Runge-Kutta method
+     https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods#Explicit_Runge.E2.80.93Kutta_methods
+     */
   let stepExplicitRungeKutta =
       (
         ~tableau as {rkMat, weights}: butcherTableau,
@@ -156,7 +181,6 @@ module Sim = (F: ODE) => {
       : F.state => {
     let s = Array.length(rkMat);
     assert (s == Array.length(weights));
-    /* assert (s == Array.length tab.nodes); */
     let k: array(F.deriv) = Array.make(s, F.zero_deriv);
     for (i in 0 to s - 1) {
       assert (i == Array.length(rkMat[i]));
@@ -175,6 +199,7 @@ module Sim = (F: ODE) => {
   };
   let stepRKEuler = stepExplicitRungeKutta(~tableau=euler_tableau);
   let stepRK4 = stepExplicitRungeKutta(~tableau=rk4_tableau);
+  let stepDoPri = stepExplicitRungeKutta(~tableau=dopri_tableau);
   let stepEuler = (~t, f: F.state => F.deriv, st: F.state) : F.state =>
     F.step(st, f(st), t);
 };
