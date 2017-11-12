@@ -8,8 +8,6 @@ module Shape = Hodgkin_Shape;
 
 module Fitzhugh = Hodgkin_Neuro_Fitzhugh;
 
-module MorrisLecar = Hodgkin_Neuro_MorrisLecar;
-
 let colorOf = (value) =>
   Utils.lerpColor(~low=Color.red, ~high=Color.blue, ~value);
 
@@ -105,16 +103,6 @@ let draw2d =
 let drawFitzhugh = (~size=200., state: Fitzhugh.state, env) =>
   Fitzhugh.(draw2d(~size, ~varPulse=state.v, ~varColor=state.w *. 5., env));
 
-let drawMorrisLecar = (~size=200., state: MorrisLecar.state, env) =>
-  MorrisLecar.(
-    draw2d(
-      ~size,
-      ~varPulse=Utils.norm(~low=minV, ~high=maxV, ~value=state.v),
-      ~varColor=Utils.norm(~low=minN, ~high=maxN, ~value=state.n),
-      env
-    )
-  );
-
 let stepEuler =
     (
       ~t,
@@ -148,47 +136,60 @@ let rk4_tableau = {
   }
 };
 
-let mult_array_constant = (arr, c) => Array.map((a) => a *. c, arr);
-
-let add_arrays = (arr1, arr2) =>
-  Array.mapi((i, arr1_i) => arr1_i +. arr2[i], arr1);
-
-let mult_arrays = (arr1, arr2) =>
-  Array.mapi((i, arr1_i) => arr1_i *. arr2[i], arr1);
-
-let zero_array = (n) => Array.make(n, 0.);
-
-let stepExplicitRungeKutta =
-    (
-      ~tableau as {rkMat, weights}: butcherTableau,
-      ~t,
-      f: array(float) /* state array */ => array(float) /* deriv array */,
-      st: array(float)
-    )
-    : array(float) => {
-  let st_len = Array.length(st);
-  let d = f(st);
-  assert (Array.length(d) == st_len);
-  let s = Array.length(rkMat);
-  assert (s == Array.length(weights));
-  /* assert (s == Array.length tab.nodes); */
-  let k: array(array(float)) = Array.init(s, (_) => [||]);
-  for (i in 0 to s - 1) {
-    assert (i == Array.length(rkMat[i]));
-    let accum_slope = ref(zero_array(st_len));
-    for (j in 0 to i - 1) {
-      accum_slope := mult_array_constant(accum_slope^, rkMat[i][j])
-    };
-    k[i] = f(add_arrays(st, mult_array_constant(accum_slope^, t)))
-  };
-  let acc = ref(zero_array(st_len));
-  weights
-  |> Array.iteri(
-       (i, w_i) => acc := add_arrays(acc^, mult_array_constant(k[i], w_i))
-     );
-  add_arrays(st, mult_array_constant(acc^, t))
+module type ODE = {
+  type state;
+  type deriv;
+  let zero_deriv: deriv;
+  let scale_deriv: (deriv, float) => deriv;
+  let add_derivs: (deriv, deriv) => deriv;
+  let step: (state, deriv, float) => state;
 };
 
-let stepRKEuler = stepExplicitRungeKutta(~tableau=euler_tableau);
+module Sim = (F: ODE) => {
+  let stepExplicitRungeKutta =
+      (
+        ~tableau as {rkMat, weights}: butcherTableau,
+        ~t,
+        f: F.state => F.deriv,
+        st: F.state
+      )
+      : F.state => {
+    let s = Array.length(rkMat);
+    assert (s == Array.length(weights));
+    /* assert (s == Array.length tab.nodes); */
+    let k: array(F.deriv) = Array.make(s, F.zero_deriv);
+    for (i in 0 to s - 1) {
+      assert (i == Array.length(rkMat[i]));
+      let accum_slope = ref(F.zero_deriv);
+      for (j in 0 to i - 1) {
+        accum_slope := F.scale_deriv(accum_slope^, rkMat[i][j])
+      };
+      k[i] = f(F.step(st, accum_slope^, t))
+    };
+    let acc = ref(F.zero_deriv);
+    weights
+    |> Array.iteri(
+         (i, w_i) => acc := F.add_derivs(acc^, F.scale_deriv(k[i], w_i))
+       );
+    F.step(st, acc^, t)
+  };
+  let stepRKEuler = stepExplicitRungeKutta(~tableau=euler_tableau);
+  let stepRK4 = stepExplicitRungeKutta(~tableau=rk4_tableau);
+  let stepEuler = (~t, f: F.state => F.deriv, st: F.state) : F.state =>
+    F.step(st, f(st), t);
+};
 
-let stepRK4 = stepExplicitRungeKutta(~tableau=rk4_tableau);
+module MorrisLecar = {
+  include Hodgkin_Neuro_MorrisLecar;
+  include Sim(Hodgkin_Neuro_MorrisLecar);
+};
+
+let drawMorrisLecar = (~size=200., state: MorrisLecar.state, env) =>
+  MorrisLecar.(
+    draw2d(
+      ~size,
+      ~varPulse=Utils.norm(~low=minV, ~high=maxV, ~value=state.v),
+      ~varColor=Utils.norm(~low=minN, ~high=maxN, ~value=state.n),
+      env
+    )
+  );

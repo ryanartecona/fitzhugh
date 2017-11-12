@@ -10,18 +10,18 @@ type deriv = {
   dn: float
 };
 
-type state_arr = array(float);
+/* Implement ODE signature
+ */
+let zero_deriv = {dv: 0., dn: 0.};
 
-type deriv_arr = array(float);
+let scale_deriv = ({dv, dn}, scale) => {dv: dv *. scale, dn: dn *. scale};
 
-let array_of_state = ({v, n}) => [|v, n|];
+let add_derivs = (x, y) => {dv: x.dv +. y.dv, dn: x.dn +. y.dn};
 
-let state_of_array = (arr) => {v: arr[0], n: arr[1]};
+let step = ({v, n}, {dv, dn}, t) => {v: v +. dv *. t, n: n +. dn *. t};
 
-let array_of_deriv = ({dv, dn}) => [|dv, dn|];
-
-let deriv_of_array = (arr) => {dv: arr[0], dn: arr[1]};
-
+/* Typical soft bounds to help drawings
+ */
 let initState = {v: (-65.), n: 0.};
 
 let minV = (-80.);
@@ -36,6 +36,7 @@ let maxN = 0.8;
 
 let restN = 0.;
 
+/* Evaluate ODE at a point in the state space */
 let slope =
     (
       ~g_L=8.,
@@ -49,16 +50,16 @@ let slope =
       /* ::n_inf=(logisticCurve midValue::(-25.) slopeInv::5.) */
       ~n_inf=logisticCurve(~midValue=(-45.), ~slopeInv=5.),
       ~input=0.,
-      st: state_arr
+      st: state
     )
-    : deriv_arr =>
+    : deriv =>
   [@ocaml.warning "-8"]
   {
-    let [|v, n|] = st;
+    let {v, n} = st;
     let leakCurrent = g_L *. (v -. e_L);
     let sodiumCurrent = g_Na *. m_inf(v) *. (v -. e_Na);
     let potassiumCurrent = g_K *. n *. (v -. e_K);
     let dv = input -. leakCurrent -. sodiumCurrent -. potassiumCurrent;
     let dn = n_inf(v) -. n;
-    [|dv, dn|]
+    {dv, dn}
   };

@@ -44,7 +44,11 @@ let draw = (state, env) => {
   env
   |> Util.withContext(
        () => {
-         Draw.translate(~x=float_of_int(frameWidth / 2), ~y=float_of_int(frameHeight / 2), env);
+         Draw.translate(
+           ~x=float_of_int(frameWidth / 2),
+           ~y=float_of_int(frameHeight / 2),
+           env
+         );
          Neuro.drawMorrisLecar(~size=neuronSize, exc1, env)
        }
      );
@@ -57,8 +61,7 @@ let draw = (state, env) => {
     };
   let nextExc1 =
     Neuro.MorrisLecar.(
-      Util.iterN(80, array_of_state(exc1), Neuro.stepRK4(slope(~input=rampedInput), ~t=0.001))
-      |> state_of_array
+      Util.iterN(80, exc1, stepRK4(slope(~input=rampedInput), ~t=0.001))
     );
   {modelState: {exc1: nextExc1}, input: rampedInput}
 };
