@@ -40,7 +40,10 @@ let meter =
     | Up
     | Down => (1., Pervasives.min(1., Utils.norm(~value, ~low=min, ~high=max)))
     | Left
-    | Right => (Pervasives.min(1., Utils.norm(~value, ~low=min, ~high=max)), 1.)
+    | Right => (
+        Pervasives.min(1., Utils.norm(~value, ~low=min, ~high=max)),
+        1.
+      )
     };
   withContext(
     () => {
@@ -53,7 +56,12 @@ let meter =
       Draw.rectf(~pos=(0., 0.), ~width, ~height, env);
       Draw.noStroke(env);
       Draw.fill(meterColor, env);
-      Draw.rectf(~pos=(0., 0.), ~width=width *. scaleWidth, ~height=height *. scaleHeight, env);
+      Draw.rectf(
+        ~pos=(0., 0.),
+        ~width=width *. scaleWidth,
+        ~height=height *. scaleHeight,
+        env
+      );
       Draw.stroke(outlineColor, env);
       Draw.strokeWeight(1, env);
       Draw.noFill(env);
@@ -62,4 +70,78 @@ let meter =
     env
   );
   ()
+};
+
+type monitorLine = {
+  min: float,
+  max: float,
+  color: Reprocessing.colorT,
+  strokeWeight: int,
+  points: array(float),
+  maxPointCount: int
+};
+
+let monitor =
+    (
+      ~width=100.,
+      ~height=30.,
+      ~outlineColor=grayScale(~a=0.3, 0.),
+      ~backgroundColor=grayScale(~a=0.3, 0.5),
+      lines,
+      env
+    ) =>
+  withContext(
+    () => {
+      Draw.noStroke(env);
+      Draw.fill(backgroundColor, env);
+      Draw.rectf(~pos=(0., 0.), ~width, ~height, env);
+      lines
+      |> List.iter(
+           (line) => {
+             let pointCount = Array.length(line.points);
+             let missingPointCount = line.maxPointCount - pointCount;
+             let stepSizePx = width /. float_of_int(line.maxPointCount - 1);
+             Draw.stroke(line.color, env);
+             Draw.strokeWeight(line.strokeWeight, env);
+             for (i in 0 to pointCount - 1) {
+               let p = line.points[i];
+               switch line.points[i + 1] {
+               | nextPoint =>
+                 let x = stepSizePx *. float_of_int(i + missingPointCount);
+                 let y =
+                   height
+                   -. height
+                   *. Utils.norm(~value=p, ~low=line.min, ~high=line.max);
+                 let nextX = x +. stepSizePx;
+                 let nextY =
+                   height
+                   -. height
+                   *. Utils.norm(
+                        ~value=nextPoint,
+                        ~low=line.min,
+                        ~high=line.max
+                      );
+                 Draw.linef(~p2=(x, y), ~p1=(nextX, nextY), env);
+                 ()
+               | exception (Invalid_argument(_)) => ()
+               }
+             }
+           }
+         );
+      Draw.stroke(outlineColor, env);
+      Draw.strokeWeight(1, env);
+      Draw.noFill(env);
+      Draw.rectf(~pos=(0., 0.), ~width, ~height, env)
+    },
+    env
+  );
+
+let appendDatum = (line, datum) => {
+  let appended = Array.append(line.points, [|datum|]);
+  {
+    ...line,
+    points:
+      Array.length(appended) > line.maxPointCount ?
+        Array.sub(appended, 1, line.maxPointCount) : appended
+  }
 };
