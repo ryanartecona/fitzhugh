@@ -3,9 +3,10 @@ open Reprocessing;
 let withContext = (f, env) => {
   Draw.pushStyle(env);
   Draw.pushMatrix(env);
-  f();
+  let ret = f();
   Draw.popStyle(env);
-  Draw.popMatrix(env)
+  Draw.popMatrix(env);
+  ret
 };
 
 let drawRectCenter = (~width, ~height, env) =>

@@ -89,11 +89,32 @@ let monitor =
       ~backgroundColor=grayScale(~a=0.3, 0.5),
       lines,
       env
-    ) =>
+    )
+    : option(float) =>
   withContext(
     () => {
+      let (canvasMouseX, canvasMouseY) = Env.(mouse(env));
+      let (mouseX, mouseY) =
+        Env.localizePointf(
+          (float_of_int(canvasMouseX), float_of_int(canvasMouseY)),
+          env
+        );
+      let mouseIsDown = Env.mousePressed(env);
       Draw.noStroke(env);
-      Draw.fill(backgroundColor, env);
+      let ret =
+        mouseIsDown
+        && mouseX > 0.
+        && mouseX < width
+        && mouseY > 0.
+        && mouseY < height ?
+          {
+            Draw.fill(black, env);
+            Some(Utils.norm(~value=mouseY, ~high=0., ~low=height))
+          } :
+          {
+            Draw.fill(backgroundColor, env);
+            None
+          };
       Draw.rectf(~pos=(0., 0.), ~width, ~height, env);
       lines
       |> List.iter(
@@ -103,6 +124,7 @@ let monitor =
              let stepSizePx = width /. float_of_int(line.maxPointCount - 1);
              Draw.stroke(line.color, env);
              Draw.strokeWeight(line.strokeWeight, env);
+             Draw.strokeCap(Square, env);
              for (i in 0 to pointCount - 1) {
                let p = line.points[i];
                switch line.points[i + 1] {
@@ -131,7 +153,8 @@ let monitor =
       Draw.stroke(outlineColor, env);
       Draw.strokeWeight(1, env);
       Draw.noFill(env);
-      Draw.rectf(~pos=(0., 0.), ~width, ~height, env)
+      Draw.rectf(~pos=(0., 0.), ~width, ~height, env);
+      ret
     },
     env
   );
