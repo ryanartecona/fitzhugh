@@ -40,14 +40,14 @@ let restN = 0.;
 let slope =
     (
       ~g_L=8.,
-      /* ::e_L=(-80.) */
+      /* ~e_L=(-82.), */
       ~e_L=(-78.),
       ~g_Na=20.,
       ~e_Na=60.,
       ~g_K=10.,
       ~e_K=(-90.),
       ~m_inf=logisticCurve(~midValue=(-20.), ~slopeInv=15.),
-      /* ::n_inf=(logisticCurve midValue::(-25.) slopeInv::5.) */
+      /* ~n_inf=logisticCurve(~midValue=(-25.), ~slopeInv=5.), */
       ~n_inf=logisticCurve(~midValue=(-45.), ~slopeInv=5.),
       ~input=0.,
       st: state
