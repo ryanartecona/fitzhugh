@@ -7,7 +7,8 @@ type modelState = {exc1: Neuro.MorrisLecar.state};
 type state = {
   modelState,
   modelMonitorLine: Shape.monitorLine,
-  inputMonitorLine: Shape.monitorLine
+  inputMonitorLine: Shape.monitorLine,
+  phaseTraceLine: Shape.phaseTraceLine
 };
 
 let (minInput, maxInput) = (12., 50.);
@@ -32,13 +33,23 @@ let setup = (env) => {
       strokeWeight: 4,
       points: [||],
       maxPointCount: 400
-    }
+    },
+    phaseTraceLine:
+      Neuro.MorrisLecar.{
+        min: (minV, minN),
+        max: (maxV, maxN),
+        headColor: Color.red,
+        tailColor: Color.redA(0.),
+        strokeWeight: 3,
+        points: [||],
+        maxPointCount: 20
+      }
   }
 };
 
 let draw = (state, env) => {
   let (frameWidth, frameHeight) = (Env.width(env), Env.height(env));
-  let {modelMonitorLine, inputMonitorLine} = state;
+  let {modelMonitorLine, inputMonitorLine, phaseTraceLine} = state;
   let {exc1} = state.modelState;
   let neuronSize = 150.;
   Draw.background(Constants.black, env);
@@ -57,6 +68,13 @@ let draw = (state, env) => {
       },
       env
     );
+  Util.withContext(
+    () => {
+      Draw.translate(~x=10., ~y=10., env);
+      Shape.(phaseTrace(~width=100., ~height=100., phaseTraceLine, env))
+    },
+    env
+  );
   Util.withContext(
     () => {
       Draw.translate(
@@ -80,8 +98,10 @@ let draw = (state, env) => {
     );
   {
     modelState: {exc1: nextExc1},
-    modelMonitorLine: Shape.appendDatum(modelMonitorLine, exc1.v),
-    inputMonitorLine: Shape.appendDatum(inputMonitorLine, rampedInput)
+    modelMonitorLine: Shape.monitorLineAppend(modelMonitorLine, exc1.v),
+    inputMonitorLine: Shape.monitorLineAppend(inputMonitorLine, rampedInput),
+    phaseTraceLine:
+      Shape.phaseTraceLineAppend(phaseTraceLine, (exc1.v, exc1.n))
   }
 };
 

@@ -159,12 +159,93 @@ let monitor =
     env
   );
 
-let appendDatum = (line, datum) => {
-  let appended = Array.append(line.points, [|datum|]);
-  {
-    ...line,
-    points:
-      Array.length(appended) > line.maxPointCount ?
-        Array.sub(appended, 1, line.maxPointCount) : appended
-  }
+let append = (arr, item, maxCount) => {
+  let appended = Array.append(arr, [|item|]);
+  Array.length(appended) > maxCount ?
+    Array.sub(appended, 1, maxCount) : appended
+};
+
+let monitorLineAppend = (line, datum) => {
+  ...line,
+  points: append(line.points, datum, line.maxPointCount)
+};
+
+type phaseTraceLine = {
+  min: (float, float),
+  max: (float, float),
+  headColor: Reprocessing.colorT,
+  tailColor: Reprocessing.colorT,
+  strokeWeight: int,
+  points: array((float, float)),
+  maxPointCount: int
+};
+
+let phaseTrace =
+    (
+      ~width=100.,
+      ~height=30.,
+      ~outlineColor=grayScale(~a=0.3, 0.),
+      ~backgroundColor=grayScale(~a=0.3, 0.5),
+      line,
+      env
+    ) =>
+  withContext(
+    () => {
+      Draw.fill(backgroundColor, env);
+      Draw.rectf(~pos=(0., 0.), ~width, ~height, env);
+      let (minX, minY) = line.min;
+      let (maxX, maxY) = line.max;
+      let pointCount = Array.length(line.points);
+      Draw.strokeWeight(line.strokeWeight, env);
+      Draw.strokeCap(Square, env);
+      for (i in 0 to pointCount - 1) {
+        let (px, py) = line.points[i];
+        switch line.points[i + 1] {
+        | (nextX, nextY) =>
+          let x = width *. Utils.norm(~value=px, ~low=minX, ~high=maxX);
+          let y =
+            height -. height *. Utils.norm(~value=py, ~low=minY, ~high=maxY);
+          let nextX = width *. Utils.norm(~value=nextX, ~low=minX, ~high=maxX);
+          let nextY =
+            height -. height *. Utils.norm(~value=nextY, ~low=minY, ~high=maxY);
+          Draw.stroke(
+            Utils.lerpColor(
+              ~low=line.tailColor,
+              ~high=line.headColor,
+              ~value=float_of_int(i) /. float_of_int(pointCount)
+            ),
+            env
+          );
+          Draw.linef(~p2=(x, y), ~p1=(nextX, nextY), env);
+          ()
+        | exception (Invalid_argument(_)) => ()
+        }
+      };
+      switch (Array.length(line.points)) {
+      | 0 => ()
+      | l =>
+        let (px, py) = line.points[l - 1];
+        let centerX = width *. Utils.norm(~value=px, ~low=minX, ~high=maxX);
+        let centerY =
+          height -. height *. Utils.norm(~value=py, ~low=minY, ~high=maxY);
+        Draw.noStroke(env);
+        Draw.fill(line.headColor, env);
+        Draw.ellipsef(
+          ~center=(centerX, centerY),
+          ~radx=float_of_int(line.strokeWeight) /. 2.,
+          ~rady=float_of_int(line.strokeWeight) /. 2.,
+          env
+        )
+      };
+      Draw.stroke(outlineColor, env);
+      Draw.strokeWeight(1, env);
+      Draw.noFill(env);
+      Draw.rectf(~pos=(0., 0.), ~width, ~height, env)
+    },
+    env
+  );
+
+let phaseTraceLineAppend = (line, datum) => {
+  ...line,
+  points: append(line.points, datum, line.maxPointCount)
 };
