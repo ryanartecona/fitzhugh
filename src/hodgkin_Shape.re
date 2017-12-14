@@ -211,10 +211,8 @@ let phaseTrace =
       Draw.fill(backgroundColor, env);
       Draw.rectf(~pos=(0., 0.), ~width, ~height, env);
       /* draw windsocks of the vector field */
-      let windsockCountX = 10;
-      let windsockIntervalX = 1. /. float_of_int(windsockCountX + 1);
-      let windsockCountY = 10;
-      let windsockIntervalY = 1. /. float_of_int(windsockCountY + 1);
+      let windsockCountX = 50;
+      let windsockCountY = 50;
       let windsocks =
         Array.init(
           windsockCountX,
@@ -253,7 +251,7 @@ let phaseTrace =
         (i, col) =>
           Array.iteri(
             (j, windsock) => {
-              let scale = 5.;
+              let scale = 2.;
               let normX = windsock.PS.x *. scale /. (maxX -. minX);
               let normY = windsock.PS.y *. scale /. (maxY -. minY);
               let anchor = (
@@ -275,12 +273,12 @@ let phaseTrace =
               let (anchorX, anchorY) = anchor;
               Draw.stroke(grayScale(0.7), env);
               Draw.linef(
-                ~p1=anchor,
+                ~p1=(anchorX -. normX, anchorY +. normY),
                 ~p2=(anchorX +. normX, anchorY -. normY),
                 env
               );
               Draw.noStroke(env);
-              Draw.ellipsef(~center=anchor, ~radx=1., ~rady=1., env);
+              /* Draw.ellipsef(~center=anchor, ~radx=1., ~rady=1., env); */
               ()
             },
             col

@@ -79,8 +79,8 @@ let draw = (state, env) => {
       Draw.translate(~x=10., ~y=10., env);
       Shape.(
         phaseTrace(
-          ~width=150.,
-          ~height=150.,
+          ~width=200.,
+          ~height=200.,
           ~line=phaseTraceLine,
           ~phase=
             (module
