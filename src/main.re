@@ -71,7 +71,7 @@ let draw = (state, env) => {
   Util.withContext(
     () => {
       Draw.translate(~x=10., ~y=10., env);
-      Shape.(phaseTrace(~width=100., ~height=100., phaseTraceLine, env))
+      Shape.(phaseTrace(~width=150., ~height=150., phaseTraceLine, env))
     },
     env
   );
