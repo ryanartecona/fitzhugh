@@ -277,17 +277,22 @@ let phaseTrace =
                 env
               );
               Draw.noStroke(env);
-              let epsilon = 0.1;
-              if (normY <= epsilon && normY >= -. epsilon) {
+              let epsilon = 0.05;
+              switch (
+                normX <= epsilon && normX >= -. epsilon,
+                normY <= epsilon && normY >= -. epsilon
+              ) {
+              | (true, true) =>
+                Draw.fill(whiteA(0.5), env);
+                Draw.ellipsef(~center=anchor, ~radx=1., ~rady=1., env)
+              | (true, false) =>
                 Draw.fill(redA(0.5), env);
                 Draw.ellipsef(~center=anchor, ~radx=1., ~rady=1., env)
-              };
-              if (normX <= epsilon && normX >= -. epsilon) {
+              | (false, true) =>
                 Draw.fill(blueA(0.5), env);
                 Draw.ellipsef(~center=anchor, ~radx=1., ~rady=1., env)
+              | _ => ()
               };
-              /* Draw.fill(grayScale(0.65), env); */
-              /* Draw.ellipsef(~center=anchor, ~radx=1., ~rady=1., env); */
               ()
             },
             col
