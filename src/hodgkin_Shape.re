@@ -246,7 +246,6 @@ let phaseTrace =
         );
       Draw.strokeCap(Square, env);
       Draw.strokeWeight(1, env);
-      Draw.fill(grayScale(0.65), env);
       Array.iteri(
         (i, col) =>
           Array.iteri(
@@ -278,6 +277,16 @@ let phaseTrace =
                 env
               );
               Draw.noStroke(env);
+              let epsilon = 0.1;
+              if (normY <= epsilon && normY >= -. epsilon) {
+                Draw.fill(redA(0.5), env);
+                Draw.ellipsef(~center=anchor, ~radx=1., ~rady=1., env)
+              };
+              if (normX <= epsilon && normX >= -. epsilon) {
+                Draw.fill(blueA(0.5), env);
+                Draw.ellipsef(~center=anchor, ~radx=1., ~rady=1., env)
+              };
+              /* Draw.fill(grayScale(0.65), env); */
               /* Draw.ellipsef(~center=anchor, ~radx=1., ~rady=1., env); */
               ()
             },
