@@ -180,21 +180,114 @@ type phaseTraceLine = {
   maxPointCount: int
 };
 
+module type Phase2D = {
+  type state;
+  type deriv;
+  type phase2d = {
+    x: float,
+    y: float
+  };
+  let state_of_2d: phase2d => state;
+  let deriv_to_2d: deriv => phase2d;
+  let slope: state => deriv;
+};
+
 let phaseTrace =
     (
       ~width=100.,
       ~height=30.,
       ~outlineColor=grayScale(~a=0.3, 0.),
       ~backgroundColor=grayScale(~a=0.3, 0.5),
-      line,
+      ~phase: (module Phase2D),
+      ~line,
       env
     ) =>
   withContext(
     () => {
-      Draw.fill(backgroundColor, env);
-      Draw.rectf(~pos=(0., 0.), ~width, ~height, env);
+      module PS = (val phase);
       let (minX, minY) = line.min;
       let (maxX, maxY) = line.max;
+      /* draw background */
+      Draw.fill(backgroundColor, env);
+      Draw.rectf(~pos=(0., 0.), ~width, ~height, env);
+      /* draw windsocks of the vector field */
+      let windsockCountX = 10;
+      let windsockIntervalX = 1. /. float_of_int(windsockCountX + 1);
+      let windsockCountY = 10;
+      let windsockIntervalY = 1. /. float_of_int(windsockCountY + 1);
+      let windsocks =
+        Array.init(
+          windsockCountX,
+          (i) =>
+            Array.init(
+              windsockCountY,
+              (j) =>
+                PS.(
+                  state_of_2d({
+                    x:
+                      Utils.remapf(
+                        ~low1=0.,
+                        ~high1=float_of_int(windsockCountX + 1),
+                        ~low2=minX,
+                        ~high2=maxX,
+                        ~value=float_of_int(i + 1)
+                      ),
+                    y:
+                      Utils.remapf(
+                        ~low1=0.,
+                        ~high1=float_of_int(windsockCountY + 1),
+                        ~low2=minY,
+                        ~high2=maxY,
+                        ~value=float_of_int(j + 1)
+                      )
+                  })
+                  |> slope
+                  |> deriv_to_2d
+                )
+            )
+        );
+      Draw.strokeCap(Square, env);
+      Draw.strokeWeight(1, env);
+      Draw.fill(grayScale(0.65), env);
+      Array.iteri(
+        (i, col) =>
+          Array.iteri(
+            (j, windsock) => {
+              let scale = 5.;
+              let normX = windsock.PS.x *. scale /. (maxX -. minX);
+              let normY = windsock.PS.y *. scale /. (maxY -. minY);
+              let anchor = (
+                Utils.remapf(
+                  ~low1=0.,
+                  ~high1=float_of_int(windsockCountX + 1),
+                  ~low2=0.,
+                  ~high2=width,
+                  ~value=float_of_int(i + 1)
+                ),
+                Utils.remapf(
+                  ~low1=0.,
+                  ~high1=float_of_int(windsockCountY + 1),
+                  ~low2=height,
+                  ~high2=0.,
+                  ~value=float_of_int(j + 1)
+                )
+              );
+              let (anchorX, anchorY) = anchor;
+              Draw.stroke(grayScale(0.7), env);
+              Draw.linef(
+                ~p1=anchor,
+                ~p2=(anchorX +. normX, anchorY -. normY),
+                env
+              );
+              Draw.noStroke(env);
+              Draw.ellipsef(~center=anchor, ~radx=1., ~rady=1., env);
+              ()
+            },
+            col
+          ),
+        windsocks
+      );
+      /* draw lines segments, fading from tailColor to headColor */
       let pointCount = Array.length(line.points);
       Draw.strokeWeight(line.strokeWeight, env);
       Draw.strokeCap(Square, env);
@@ -221,6 +314,7 @@ let phaseTrace =
         | exception (Invalid_argument(_)) => ()
         }
       };
+      /* draw a dot at the head, in case we're at an equilibrium point */
       switch (Array.length(line.points)) {
       | 0 => ()
       | l =>

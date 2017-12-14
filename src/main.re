@@ -68,10 +68,30 @@ let draw = (state, env) => {
       },
       env
     );
+  let staticInput = minInput;
+  let rampedInput =
+    switch monitorNormMouseY {
+    | None => staticInput
+    | Some(value) => Utils.lerpf(~value, ~low=minInput, ~high=maxInput)
+    };
   Util.withContext(
     () => {
       Draw.translate(~x=10., ~y=10., env);
-      Shape.(phaseTrace(~width=150., ~height=150., phaseTraceLine, env))
+      Shape.(
+        phaseTrace(
+          ~width=150.,
+          ~height=150.,
+          ~line=phaseTraceLine,
+          ~phase=
+            (module
+             {
+               include Neuro.MorrisLecar;
+               let slope = (s) =>
+                 Neuro.MorrisLecar.slope(~input=rampedInput, s);
+             }),
+          env
+        )
+      )
     },
     env
   );
@@ -86,12 +106,6 @@ let draw = (state, env) => {
     },
     env
   );
-  let staticInput = minInput;
-  let rampedInput =
-    switch monitorNormMouseY {
-    | None => staticInput
-    | Some(value) => Utils.lerpf(~value, ~low=minInput, ~high=maxInput)
-    };
   let nextExc1 =
     Neuro.MorrisLecar.(
       Util.iterN(40, exc1, stepRK4(slope(~input=rampedInput), ~t=0.004))

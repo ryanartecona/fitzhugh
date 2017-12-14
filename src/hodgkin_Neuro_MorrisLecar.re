@@ -36,6 +36,16 @@ let maxN = 0.8;
 
 let restN = 0.;
 
+/* experimental 2d phase trace signature */
+type phase2d = {
+  x: float,
+  y: float
+};
+
+let state_of_2d = ({x, y}) : state => {v: x, n: y};
+
+let deriv_to_2d = ({dv, dn}) : phase2d => {x: dv, y: dn};
+
 /* Evaluate ODE at a point in the state space */
 let slope =
     (
