@@ -5,33 +5,13 @@
     {
       "dir": "test",
       "type": "dev"
-    },
-    {
-      "dir": "vendor/Reprocessing/src",
-      "subdirs": [
-        {
-          "dir": "native",
-          "backend": ["bytecode"]
-        },
-        {
-          "dir": "web",
-          "backend": ["native", "js"]
-        }
-      ]
-    },
-    {
-      "dir": "vendor/Reprocessing/examples",
-      "type": "dev"
     }
   ],
   "bs-dependencies": [
     "ocaml-alcotest",
-    "ReasonglInterface",
-    "ReasonglWeb",
-    "ReasonglNative"
+    "reprocessing",
   ],
   "refmt": 3,
-  "ppx-flags": ["matchenv/matchenv"],
   "entries": [
     {
       "backend": "js",
