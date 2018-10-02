@@ -7,9 +7,9 @@
   "main": "lib/js/main.js",
   "scripts": {
     "clean": "bsb -clean-world",
-    "build:web": "bsb -color -make-world -backend js",
+    "build:web": "bsb -make-world -backend js",
     "build:web:watch": "npm run build:web -- -w",
-    "build:native": "bsb -color -make-world -backend native",
+    "build": "bsb -make-world -backend native",
     "build:native:watch": "npm run build:native -- -w",
     "webpack": "webpack",
     "webpack:watch": "webpack-dev-server --color",
@@ -18,15 +18,13 @@
     "test:watch": "echo lib/bs/native/test.native | entr -c /_ -e"
   },
   "dependencies": {
-    "ReasonglInterface": "github:bsansouci/reasongl-interface",
-    "ReasonglNative": "github:bsansouci/reasongl-native",
-    "ReasonglWeb": "github:bsansouci/reasongl-web",
-    "bs-platform": "bsansouci/bsb-native",
-    "matchenv": "bsansouci/matchenv",
+    "reprocessing": "0.2.0",
     "ocaml-alcotest": "github:ryanartecona/alcotest#bsb-native",
     "webpack": "^3.4.1",
     "webpack-dev-server": "^2.6.1",
     "write-file-webpack-plugin": "^4.1.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "bsb-native": "4.0.6"
+  }
 }
